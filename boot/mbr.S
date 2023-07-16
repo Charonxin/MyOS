@@ -47,7 +47,7 @@ SECTION MBR vstart=0x7c00 ;SECTION 伪指令
 
     mov eax,LOADER_START_SECTOR ; 起始扇区 lba 地址 0x2 定义了loader在硬盘上的逻辑扇区地址 LBA
     mov bx,LOADER_BASE_ADDR ; 写入的地址 0x900 定义了loader在内存中的位置，MBR要把loader从硬盘读入后放到此处
-    mov cx,4 ; 待读入的扇区数
+    mov cx,1 ; 待读入的扇区数
     call rd_disk_m_16 ; 以下读取程序的起始部分(一个扇区)
 
     jmp LOADER_BASE_ADDR ;mbr程序结束，程序跳到laoder
@@ -124,6 +124,132 @@ SECTION MBR vstart=0x7c00 ;SECTION 伪指令
 
     times 510-($-$$) db 0
     db 0x55,0xaa
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
