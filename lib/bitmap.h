@@ -1,18 +1,21 @@
-/**
- * 仿照/usr/include/stdint.h定义我们自己的数据类型.
- */
-#ifndef _LIB_STDINT_H
-#define _LIB_STDINT_H
+#ifndef _LIB_KERNEL_BITMAP_H
+#define _LIB_KERNEL_BITMAP_H
 
-typedef signed char int8_t;
-typedef signed short int int16_t;
-typedef signed int int32_t;
-typedef signed long long int int64_t;
+# include "global.h"
 
-typedef unsigned char uint8_t;
-typedef unsigned short int uint16_t;
-typedef unsigned int uint32_t;
-typedef unsigned long long int uint64_t;
+# define BITMAP_MASK 1
+
+struct bitmap {
+    uint32_t btmp_bytes_len;
+    uint8_t* bits;
+};
+
+void bitmap_init(struct bitmap* btmap);
+
+int bitmap_scan_test(struct bitmap* btmap, uint32_t bit_idx);
+
+int bitmap_scan(struct bitmap* btmap, uint32_t cnt);
+
+void bitmap_set(struct bitmap* btmap, uint32_t index, int8_t value);
 
 #endif
-
