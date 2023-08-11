@@ -1,8 +1,12 @@
 # include "kernel/print.h"
 # include "init.h"
-# include "thread.h"
+# include "thread/thread.h"
+# include "interrupt.h"
+# include "console.h"
 
 void k_thread_function(void*);
+void k_thread_a(void*);
+void k_thread_b(void*);
 
 int main(void) {
     put_str("I am kernel.\n");
@@ -13,7 +17,7 @@ int main(void) {
 
     intr_enable();
     while(1) {
-        put_str("Main ");
+        console_put_str("main ");
     }
 
     return 0;
@@ -22,14 +26,14 @@ int main(void) {
 void k_thread_a(void* args) {
     char* para = args;
     while (1) {
-        put_str(para);
+        console_put_str((char*) args);
     }
 }
 
 void k_thread_b(void* args) {
     char* para = args;
     while (1) {
-        put_str(para);
+        console_put_str((char*) args);
     }
 }
 
