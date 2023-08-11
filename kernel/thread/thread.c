@@ -125,6 +125,40 @@ void schedule() {
 }
 
 /**
+ * 阻塞当前线程.
+ */ 
+void thread_block(enum task_status status) {
+    ASSERT(status == TASK_BLOCKED || status == TASK_HANGING || status == TASK_WAITTING);
+
+    enum intr_status old_status = intr_disable();
+
+    struct task_struct* cur = running_thread();
+    cur->status = status;
+    schedule();
+
+    // 等到当前线程再次被调度时才能执行下面的语句
+    // 调度的其它线程无非两种情况:
+    // 1. 如果第一次执行，那么在kernel_thread方法中第一件事就是开中断
+    // 2. 如果不是第一次执行，那么通过中断返回的方式继续执行，而iret执行也会再次开中断
+    intr_set_status(old_status);
+}
+
+void thread_unblock(struct task_struct* pthread) {
+    enum intr_status old_status = intr_disable();
+
+    ASSERT(pthread->status == TASK_BLOCKED || pthread->status == TASK_HANGING || pthread->status == TASK_WAITTING);
+
+    if (pthread->status != TASK_READY) {
+        ASSERT(!list_find(&thread_ready_list, &pthread->general_tag));
+        list_push(&thread_ready_list, &pthread->general_tag);
+        pthread->status = TASK_READY;
+    }
+
+    intr_set_status(old_status);
+}
+
+
+/**
  * 线程模块初始化.
  */ 
 void thread_init() {
