@@ -1,76 +1,38 @@
-# include "sync.h"
-# include "interrupt.h"
-# include "debug.h"
+# include "console.h"
+# include "kernel/print.h"
+# include "stdint.h"
+# include "thread/sync.h"
+# include "thread/thread.h"
 
-void semaphore_init(struct semaphore* psem, uint8_t value) {
-    psem->value = value;
-    list_init(&psem->waiters);
+static struct lock console_lock;
+
+void console_init() {
+    lock_init(&console_lock);
 }
 
-void lock_init(struct lock* lock) {
-    lock->holder = NULL;
-    lock->holder_repeat_num = 0;
-    semaphore_init(&lock->semaphore, 1);
+void console_acquire() {
+    lock_acquire(&console_lock);
 }
 
-void semaphore_down(struct semaphore* psem) {
-    enum intr_status old_status = intr_disable();
-
-    while (psem->value == 0) {
-        struct task_struct* cur = running_thread();
-        ASSERT(!list_find(&psem->waiters, &cur->general_tag));
-        list_append(&psem->waiters, &cur->general_tag);
-        thread_block(TASK_BLOCKED);
-    }
-
-    psem->value--;
-    ASSERT(psem->value == 0);
-    intr_set_status(old_status);
+void console_release() {
+    lock_release(&console_lock);
 }
 
-void semaphore_up(struct semaphore* psem) {
-     enum intr_status old_status = intr_disable();
-     ASSERT(psem->value == 0);
-
-     if (!list_empty(&psem->waiters)) {
-         struct task_struct* waiter = elem2entry(struct task_struct, general_tag, list_pop(&psem->waiters));
-         thread_unblock(waiter);
-     }
-
-     psem->value++;
-     ASSERT(psem->value == 1);
-     intr_set_status(old_status);
+void console_put_str(char* str) {
+    console_acquire();
+    put_str(str);
+    console_release();
 }
 
-/**
- * 申请锁.
- */ 
-void lock_acquire(struct lock* plock) {
-    struct task_struct* cur = running_thread();
-    if (plock->holder != cur) {
-        semaphore_down(&plock->semaphore);
-        plock->holder = cur;
-        ASSERT(plock->holder_repeat_num == 0);
-        plock->holder_repeat_num = 1;
-    } else {
-        plock->holder_repeat_num++;
-    }
+void console_put_char(uint8_t char_asci) {
+    console_acquire();
+    put_char(char_asci);
+    console_release();
 }
 
-/**
- * 锁释放.
- */ 
-void lock_release(struct lock* plock) {
-    ASSERT(plock->holder == running_thread());
-
-    if (plock->holder_repeat_num > 1) {
-        plock->holder_repeat_num--;
-        return;
-    }
-
-    ASSERT(plock->holder_repeat_num == 1);
-
-    plock->holder = NULL;
-    plock->holder_repeat_num = 0;
-    semaphore_up(&plock->semaphore);
+void console_put_int(uint32_t num) {
+    console_acquire();
+    put_int(num);
+    console_release();
 }
+

@@ -1,8 +1,6 @@
 # include "kernel/print.h"
 # include "init.h"
-# include "thread/thread.h"
 # include "interrupt.h"
-# include "console.h"
 
 void k_thread_function(void*);
 void k_thread_a(void*);
