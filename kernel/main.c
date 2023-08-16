@@ -42,7 +42,7 @@ void k_thread_a(void* arg) {
 /* 在线程中运行的函数 */
 void k_thread_b(void* arg) {     
    char* para = arg;
-   console_put_str(" thread_b_pid:0x");
+   console_put_str(" I am thread_b, my pid:0x");
    console_put_int(sys_getpid());
    console_put_char('\n');
    while(1);
@@ -50,12 +50,14 @@ void k_thread_b(void* arg) {
 
 /* 测试用户进程 */
 void u_prog_a(void) {
-   printf(" prog_a_pid:0x%x\n", getpid());
+   char* name = "prog_a";
+   printf(" I am %s, my pid:%d%c", name, getpid(),'\n');
    while(1);
 }
 
 /* 测试用户进程 */
 void u_prog_b(void) {
-   printf(" prog_b_pid:0x%x\n", getpid());
+   char* name = "prog_b";
+   printf(" I am %s, my pid:%d%c", name, getpid(), '\n');
    while(1);
 }
