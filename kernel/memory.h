@@ -30,6 +30,20 @@ struct virtual_addr {
     uint32_t vaddr_start;
 };
 
+/* 内存块 */
+struct mem_block {
+   struct list_elem free_elem;
+};
+
+/* 内存块描述符 */
+struct mem_block_desc {
+   uint32_t block_size;		 // 内存块大小
+   uint32_t blocks_per_arena;	 // 本arena中可容纳此mem_block的数量.
+   struct list free_list;	 // 目前可用的mem_block链表
+};
+
+#define DESC_CNT 7	   // 内存块描述符个数
+
 extern struct pool kernel_pool, user_pool;
 
 void mem_init(void);

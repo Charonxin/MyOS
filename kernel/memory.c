@@ -38,8 +38,19 @@ struct pool
     struct lock lock; // 申请内存时互斥
 };
 
-struct pool kernel_pool, user_pool;
-struct virtual_addr kernel_addr;
+/* 内存仓库arena元信息 */
+struct arena {
+   struct mem_block_desc* desc;	 // 此arena关联的mem_block_desc
+/* large为ture时,cnt表示的是页框数。
+ * 否则cnt表示空闲mem_block数量 */
+   uint32_t cnt;
+   bool large;		   
+};
+
+struct mem_block_desc k_block_descs[DESC_CNT];	// 内核内存块描述符数组
+struct pool kernel_pool, user_pool;      // 生成内核内存池和用户内存池
+struct virtual_addr kernel_vaddr;	 // 此结构是用来给内核分配虚拟地址
+
 
 /**
  * 初始化内存池.
@@ -323,6 +334,23 @@ void *get_kernel_pages(uint32_t page_count)
         memset(vaddr, 0, page_count * PAGE_SIZE);
     }
     return vaddr;
+}
+
+/* 为malloc做准备 */
+void block_desc_init(struct mem_block_desc* desc_array) {				   
+   uint16_t desc_idx, block_size = 16;
+
+   /* 初始化每个mem_block_desc描述符 */
+   for (desc_idx = 0; desc_idx < DESC_CNT; desc_idx++) {
+      desc_array[desc_idx].block_size = block_size;
+
+      /* 初始化arena中的内存块数量 */
+      desc_array[desc_idx].blocks_per_arena = (PG_SIZE - sizeof(struct arena)) / block_size;	  
+
+      list_init(&desc_array[desc_idx].free_list);
+
+      block_size *= 2;         // 更新为下一个规格内存块
+   }
 }
 
 void mem_init(void)
