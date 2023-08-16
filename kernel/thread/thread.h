@@ -3,6 +3,8 @@
 
 # include "stdint.h"
 # include "kernel/list.h"
+#include "bitmap.h"
+#include "memory.h"
 
 /**
  * 自定义通用函数类型.
@@ -66,21 +68,26 @@ struct thread_stack {
  * PCB，进程或线程的控制块.
  */ 
 struct task_struct {
-    // 内核栈
-    uint32_t* self_kstack;
-    enum task_status status;
-    char name[16];
-    uint8_t priority;
-    // 当前线程可以占用的CPU嘀嗒数
-    uint8_t ticks;
-    // 此任务占用的总嘀嗒数
-    uint32_t elaspsed_ticks;
-    // 可执行队列节点
-    struct list_elem general_tag;
-    // 所有不可运行线程队列节点
-    struct list_elem all_list_tag;
-    uint32_t* pgdir;
-    uint32_t stack_magic;
+   uint32_t* self_kstack;	 // 各内核线程都用自己的内核栈
+   enum task_status status;
+   char name[16];
+   uint8_t priority;
+   uint8_t ticks;	   // 每次在处理器上执行的时间嘀嗒数
+
+/* 此任务自上cpu运行后至今占用了多少cpu嘀嗒数,
+ * 也就是此任务执行了多久*/
+   uint32_t elapsed_ticks;
+
+/* general_tag的作用是用于线程在一般的队列中的结点 */
+   struct list_elem general_tag;				    
+
+/* all_list_tag的作用是用于线程队列thread_all_list中的结点 */
+   struct list_elem all_list_tag;
+
+   uint32_t* pgdir;              // 进程自己页表的虚拟地址
+
+   struct virtual_addr userprog_vaddr;   // 用户进程的虚拟地址
+   uint32_t stack_magic;	 // 用这串数字做栈的边界标记,用于检测栈的溢出
 };
 
 struct task_struct* running_thread();
