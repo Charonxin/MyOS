@@ -39,6 +39,11 @@ void list_append(struct list* list, struct list_elem* elem);
 void list_remove(struct list_elem* elem);
 struct list_elem* list_pop(struct list* list);
 int list_find(struct list* list, struct list_elem* elem);
+
+inline int elem_find(struct list* list, struct list_elem* elem) {
+	return list_find(list,elem);
+}
+
 int list_empty(struct list* list);
 uint32_t list_length(struct list* list);
 struct list_elem* list_traversal(struct list* list, function func, int arg);

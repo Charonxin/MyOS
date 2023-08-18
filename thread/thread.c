@@ -10,10 +10,6 @@
 
 # define PAGE_SIZE 4096
 
-struct task_struct* main_thread;
-struct list thread_ready_list;
-struct list thread_all_list;
-static struct list_elem* thread_tag;
 
 /**
  * 任务切换.
@@ -75,7 +71,7 @@ void init_thread(struct task_struct* pthread, char* name, int prio) {
 
     pthread->priority = prio;
     pthread->ticks = prio;
-    pthread->elaspsed_ticks = 0;
+    pthread->elapsed_ticks = 0;
     pthread->pgdir = NULL;
     // PCB所在物理页的顶端地址
     pthread->self_kstack = (uint32_t*) ((uint32_t) pthread + PAGE_SIZE);
@@ -107,7 +103,7 @@ void schedule() {
 
    struct task_struct* cur = running_thread(); 
    if (cur->status == TASK_RUNNING) { // 若此线程只是cpu时间片到了,将其加入到就绪队列尾
-      ASSERT(!elem_find(&thread_ready_list, &cur->general_tag));
+      ASSERT(!list_find(&thread_ready_list, &cur->general_tag));
       list_append(&thread_ready_list, &cur->general_tag);
       cur->ticks = cur->priority;     // 重新将当前线程的ticks再重置为其priority;
       cur->status = TASK_READY;

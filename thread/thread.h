@@ -10,6 +10,12 @@
  * 自定义通用函数类型.
  */ 
 typedef void thread_func(void*);
+typedef int16_t pid_t;
+
+struct task_struct* main_thread;
+struct list thread_ready_list;
+struct list thread_all_list;
+static struct list_elem* thread_tag;
 
 /**
  * 线程状态.

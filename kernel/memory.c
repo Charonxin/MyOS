@@ -103,12 +103,12 @@ static void mem_pool_init(uint32_t all_memory)
     lock_init(&kernel_pool.lock);
     lock_init(&user_pool.lock);
 
-    kernel_addr.vaddr_bitmap.btmp_bytes_len = kernel_bitmap_length;
+    kernel_vaddr.vaddr_bitmap.btmp_bytes_len = kernel_bitmap_length;
     // 内核虚拟地址池仍然保存在低端内存以内
-    kernel_addr.vaddr_bitmap.bits = (void *)(MEM_BITMAP_BASE + kernel_bitmap_length + user_bitmap_length);
-    kernel_addr.vaddr_start = K_HEAD_START;
+    kernel_vaddr.vaddr_bitmap.bits = (void *)(MEM_BITMAP_BASE + kernel_bitmap_length + user_bitmap_length);
+    kernel_vaddr.vaddr_start = K_HEAD_START;
 
-    bitmap_init(&kernel_addr.vaddr_bitmap);
+    bitmap_init(&kernel_vaddr.vaddr_bitmap);
     put_str("Init memory pool done.\n");
 }
 
@@ -140,7 +140,7 @@ static void *vaddr_get(enum pool_flags pf, uint32_t pg_count)
 
     if (pf == PF_KERNEL)
     { // 内核内存池
-        bit_idx_start = bitmap_scan(&kernel_addr.vaddr_bitmap, pg_count);
+        bit_idx_start = bitmap_scan(&kernel_vaddr.vaddr_bitmap, pg_count);
         if (bit_idx_start == -1)
         {
             // 申请失败，虚拟内存不足
@@ -150,11 +150,11 @@ static void *vaddr_get(enum pool_flags pf, uint32_t pg_count)
         // 修改bitmap，占用虚拟内存
         while (count < pg_count)
         {
-            bitmap_set(&kernel_addr.vaddr_bitmap, (bit_idx_start + count), 1);
+            bitmap_set(&kernel_vaddr.vaddr_bitmap, (bit_idx_start + count), 1);
             ++count;
         }
 
-        vaddr_start = (kernel_addr.vaddr_start + bit_idx_start * PAGE_SIZE);
+        vaddr_start = (kernel_vaddr.vaddr_start + bit_idx_start * PAGE_SIZE);
     }
     else
     { // 用户内存池
@@ -438,12 +438,12 @@ void* sys_malloc(uint32_t size) {
 	 a->cnt = descs[desc_idx].blocks_per_arena;
 	 uint32_t block_idx;
 
-	 enum intr_status old_status = intr_disable();
+	 enum intr_status* old_status = intr_disable();
 
 	 /* 开始将arena拆分成内存块,并添加到内存块描述符的free_list中 */
 	 for (block_idx = 0; block_idx < descs[desc_idx].blocks_per_arena; block_idx++) {
 	    b = arena2block(a, block_idx);
-	    ASSERT(!elem_find(&a->desc->free_list, &b->free_elem));
+	    ASSERT(!list_find(&a->desc->free_list, &b->free_elem));
 	    list_append(&a->desc->free_list, &b->free_elem);	
 	 }
 	 intr_set_status(old_status);
@@ -562,7 +562,7 @@ void sys_free(void* ptr) {
 
    /* 判断是线程还是进程 */
       if (running_thread()->pgdir == NULL) {
-	 ASSERT((uint32_t)ptr >= K_HEAP_START);
+	 ASSERT((uint32_t)ptr >= K_HEAD_START);
 	 PF = PF_KERNEL; 
 	 mem_pool = &kernel_pool;
       } else {
@@ -585,7 +585,7 @@ void sys_free(void* ptr) {
 	    uint32_t block_idx;
 	    for (block_idx = 0; block_idx < a->desc->blocks_per_arena; block_idx++) {
 	       struct mem_block*  b = arena2block(a, block_idx);
-	       ASSERT(elem_find(&a->desc->free_list, &b->free_elem));
+	       ASSERT(list_find(&a->desc->free_list, &b->free_elem));
 	       list_remove(&b->free_elem);
 	    }
 	    mfree_page(PF, a, 1); 

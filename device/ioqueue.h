@@ -2,8 +2,8 @@
 # define _DEVICE_IOQUEUE_H
 
 # include "stdint.h"
-# include "thread/thread.h"
-# include "thread/sync.h"
+# include "thread.h"
+# include "sync.h"
 
 # define buf_size 64
 

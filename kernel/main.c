@@ -1,4 +1,4 @@
-#include "kernel/print.h"
+#include "print.h"
 #include "init.h"
 #include "thread.h"
 #include "interrupt.h"

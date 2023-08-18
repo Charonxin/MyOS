@@ -2,7 +2,7 @@
 # include "kernel/print.h"
 # include "timer.h"
 # include "memory.h"
-# include "thread/thread.h"
+# include "thread.h"
 # include "console.h"
 
 void init_all() {
