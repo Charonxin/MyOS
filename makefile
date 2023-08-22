@@ -6,7 +6,7 @@ LD = ld
 LIB = -I lib/ -I kernel/ -I device/ -I lib/kernel/ -I thread/ -I userprog/ -I fs/
 ASFLAGS = -f elf
 ASIB = -I boot/include/
-CFLAGS = -Wall -m32 -fno-stack-protector $(LIB) -c -fno-builtin -W -Wstrict-prototypes -Wmissing-prototypes
+CFLAGS = -Wall -m32 -fno-stack-protector $(LIB) -c -fno-builtin -W -Wstrict-prototypes -Wmissing-prototypes -g
 LDFLAGS = -m elf_i386 -Ttext $(ENTRY_POINT) -e main -Map $(BUILD_DIR)/kernel.map
 OBJS = $(BUILD_DIR)/main.o $(BUILD_DIR)/init.o $(BUILD_DIR)/interrupt.o $(BUILD_DIR)/timer.o $(BUILD_DIR)/kernel.o \
 	 $(BUILD_DIR)/print.o $(BUILD_DIR)/debug.o $(BUILD_DIR)/thread.o $(BUILD_DIR)/string.o $(BUILD_DIR)/memory.o \

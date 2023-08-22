@@ -65,19 +65,18 @@ uint32_t strlen(const char* str) {
     return count;
 }
 
-/**
- * 如果左边大于右边返回1.
- */ 
-int8_t strcmp(const char* left, const char* right) {
-    ASSERT(left != NULL && right != NULL);
-
-    while (*left != 0 && *left == *right) {
-        ++left;
-        ++right;
-    }
-
-    return (*left < *right ? -1 : *left > *right);
+/* 比较两个字符串,若a_中的字符大于b_中的字符返回1,相等时返回0,否则返回-1. */
+int8_t strcmp (const char* a, const char* b) {
+   ASSERT(a != NULL && b != NULL);
+   while (*a != 0 && *a == *b) {
+      a++;
+      b++;
+   }
+/* 如果*a小于*b就返回-1,否则就属于*a大于等于*b的情况。在后面的布尔表达式"*a > *b"中,
+ * 若*a大于*b,表达式就等于1,否则就表达式不成立,也就是布尔值为0,恰恰表示*a等于*b */
+   return *a < *b ? -1 : *a > *b;
 }
+
 
 char* strchr(const char* str, const uint8_t c) {
     ASSERT(str != NULL);
