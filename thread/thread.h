@@ -12,7 +12,7 @@ struct task_struct* main_thread;    // 主线程PCB
 struct task_struct* idle_thread;    // idle线程
 struct list thread_ready_list;	    // 就绪队列
 struct list thread_all_list;	    // 所有任务队列
-struct lock pid_lock;		    // 分配pid锁
+struct lock *pid_lock;		    // 分配pid锁
 static struct list_elem* thread_tag;// 用于保存队列中的线程结点
 
 typedef void thread_func(void*);

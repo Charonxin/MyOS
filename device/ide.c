@@ -173,7 +173,7 @@ void ide_read(struct disk* hd, uint32_t lba, void* buf, uint32_t sec_cnt) {   //
    /*********************   阻塞自己的时机  ***********************
       在硬盘已经开始工作(开始在内部读数据或写数据)后才能阻塞自己,现在硬盘已经开始忙了,
       将自己阻塞,等待硬盘完成读操作后通过中断处理程序唤醒自己*/
-      sema_down(&hd->my_channel->disk_done);
+      semaphore_down(&hd->my_channel->disk_done);
    /*************************************************************/
 
    /* 4 检测硬盘状态是否可读 */
@@ -226,7 +226,7 @@ void ide_write(struct disk* hd, uint32_t lba, void* buf, uint32_t sec_cnt) {
       write2sector(hd, (void*)((uint32_t)buf + secs_done * 512), secs_op);
 
       /* 在硬盘响应期间阻塞自己 */
-      sema_down(&hd->my_channel->disk_done);
+      semaphore_down(&hd->my_channel->disk_done);
       secs_done += secs_op;
    }
    /* 醒来后开始释放锁*/
@@ -251,7 +251,7 @@ static void identify_disk(struct disk* hd) {
    cmd_out(hd->my_channel, CMD_IDENTIFY);
 /* 向硬盘发送指令后便通过信号量阻塞自己,
  * 待硬盘处理完成后,通过中断处理程序将自己唤醒 */
-   sema_down(&hd->my_channel->disk_done);
+   semaphore_down(&hd->my_channel->disk_done);
 
 /* 醒来后开始执行下面代码*/
    if (!busy_wait(hd)) {     //  若失败
@@ -317,7 +317,7 @@ static void partition_scan(struct disk* hd, uint32_t ext_lba) {
 }
 
 /* 打印分区信息 */
-static bool partition_info(struct list_elem* pelem, int arg UNUSED) {
+static bool partition_info(struct list_elem* pelem, int arg) {
    struct partition* part = elem2entry(struct partition, part_tag, pelem);
    printk("   %s start_lba:0x%x, sec_cnt:0x%x\n",part->name, part->start_lba, part->sec_cnt);
 
@@ -336,7 +336,7 @@ void intr_hd_handler(uint8_t irq_no) {
  * 每次读写硬盘时会申请锁,从而保证了同步一致性 */
    if (channel->expecting_intr) {
       channel->expecting_intr = false;
-      sema_up(&channel->disk_done);
+      semaphore_up(&channel->disk_done);
 
 /* 读取状态寄存器使硬盘控制器认为此次的中断已被处理,
  * 从而硬盘可以继续执行新的读写 */
@@ -374,9 +374,9 @@ void ide_init() {
       channel->expecting_intr = false;		   // 未向硬盘写入指令时不期待硬盘的中断
       lock_init(&channel->lock);		     
 
-   /* 初始化为0,目的是向硬盘控制器请求数据后,硬盘驱动sema_down此信号量会阻塞线程,
-   直到硬盘完成后通过发中断,由中断处理程序将此信号量sema_up,唤醒线程. */
-      sema_init(&channel->disk_done, 0);
+   /* 初始化为0,目的是向硬盘控制器请求数据后,硬盘驱动semaphore_down此信号量会阻塞线程,
+   直到硬盘完成后通过发中断,由中断处理程序将此信号量semaphore_up,唤醒线程. */
+      semaphore_init(&channel->disk_done, 0);
 
       register_handler(channel->irq_no, intr_hd_handler);
 

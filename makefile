@@ -77,8 +77,8 @@ $(BUILD_DIR)/syscall-init.o: userprog/syscall-init.c userprog/syscall-init.h lib
 $(BUILD_DIR)/stdio.o: lib/stdio.c lib/stdio.h lib/stdint.h kernel/interrupt.h lib/stdint.h kernel/global.h lib/string.h lib/user/syscall.h lib/kernel/print.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(BUILD_DIR)/ide.o: device/ide.c device/ide.h lib/stdint.h thread/sync.h lib/kernel/list.h kernel/global.h thread/thread.h lib/kernel/bitmap.h \
-     	kernel/memory.h lib/kernel/io.h lib/stdio.h lib/stdint.h lib/kernel/stdio-kernel.h kernel/interrupt.h kernel/debug.h device/console.h device/timer.h lib/string.h
+$(BUILD_DIR)/ide.o: device/ide.c device/ide.h lib/stdint.h thread/sync.h lib/kernel/list.h kernel/global.h thread/thread.h lib/bitmap.h \
+     	kernel/memory.h kernel/io.h lib/stdio.h lib/stdint.h lib/kernel/stdio-kernel.h kernel/interrupt.h kernel/debug.h device/console.h device/timer.h lib/string.h
 	$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/stdio-kernel.o: lib/kernel/stdio-kernel.c lib/kernel/stdio-kernel.h lib/stdint.h \
@@ -86,26 +86,26 @@ $(BUILD_DIR)/stdio-kernel.o: lib/kernel/stdio-kernel.c lib/kernel/stdio-kernel.h
 	$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/fs.o: fs/fs.c fs/fs.h lib/stdint.h device/ide.h thread/sync.h lib/kernel/list.h \
-   	kernel/global.h thread/thread.h lib/kernel/bitmap.h kernel/memory.h fs/super_block.h \
+   	kernel/global.h thread/thread.h lib/bitmap.h kernel/memory.h fs/super_block.h \
 	fs/inode.h fs/dir.h lib/kernel/stdio-kernel.h lib/string.h lib/stdint.h kernel/debug.h \
        	kernel/interrupt.h lib/kernel/print.h fs/file.h
 	$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/inode.o: fs/inode.c fs/inode.h lib/stdint.h lib/kernel/list.h \
     	kernel/global.h fs/fs.h device/ide.h thread/sync.h thread/thread.h \
-     	lib/kernel/bitmap.h kernel/memory.h fs/file.h kernel/debug.h \
+     	lib/bitmap.h kernel/memory.h fs/file.h kernel/debug.h \
       	kernel/interrupt.h lib/kernel/stdio-kernel.h
 	$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/file.o: fs/file.c fs/file.h lib/stdint.h device/ide.h thread/sync.h \
-    	lib/kernel/list.h kernel/global.h thread/thread.h lib/kernel/bitmap.h \
+    	lib/kernel/list.h kernel/global.h thread/thread.h lib/bitmap.h \
      	kernel/memory.h fs/fs.h fs/inode.h fs/dir.h lib/kernel/stdio-kernel.h \
       	kernel/debug.h kernel/interrupt.h
 	$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/dir.o: fs/dir.c fs/dir.h lib/stdint.h fs/inode.h lib/kernel/list.h \
     	kernel/global.h device/ide.h thread/sync.h thread/thread.h \
-     	lib/kernel/bitmap.h kernel/memory.h fs/fs.h fs/file.h \
+     	lib/bitmap.h kernel/memory.h fs/fs.h fs/file.h \
       	lib/kernel/stdio-kernel.h kernel/debug.h kernel/interrupt.h
 	$(CC) $(CFLAGS) $< -o $@
 

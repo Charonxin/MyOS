@@ -12,7 +12,7 @@
 extern void switch_to(struct task_struct* cur, struct task_struct* next);
 
 /* 系统空闲时运行的线程 */
-static void idle(void* arg UNUSED) {
+static void idle(void* arg) {
    while(1) {
       thread_block(TASK_BLOCKED);     
       //执行hlt时必须要保证目前处在开中断的情况下
@@ -100,12 +100,12 @@ struct task_struct* thread_start(char* name, int prio, thread_func function, voi
    thread_create(thread, function, func_arg);
 
    /* 确保之前不在队列中 */
-   ASSERT(!elem_find(&thread_ready_list, &thread->general_tag));
+   ASSERT(!list_find(&thread_ready_list, &thread->general_tag));
    /* 加入就绪线程队列 */
    list_append(&thread_ready_list, &thread->general_tag);
 
    /* 确保之前不在队列中 */
-   ASSERT(!elem_find(&thread_all_list, &thread->all_list_tag));
+   ASSERT(!list_find(&thread_all_list, &thread->all_list_tag));
    /* 加入全部线程队列 */
    list_append(&thread_all_list, &thread->all_list_tag);
 
@@ -121,7 +121,7 @@ static void make_main_thread(void) {
 
 /* main函数是当前线程,当前线程不在thread_ready_list中,
  * 所以只将其加在thread_all_list中. */
-   ASSERT(!elem_find(&thread_all_list, &main_thread->all_list_tag));
+   ASSERT(!list_find(&thread_all_list, &main_thread->all_list_tag));
    list_append(&thread_all_list, &main_thread->all_list_tag);
 }
 
@@ -131,7 +131,7 @@ void schedule() {
 
    struct task_struct* cur = running_thread(); 
    if (cur->status == TASK_RUNNING) { // 若此线程只是cpu时间片到了,将其加入到就绪队列尾
-      ASSERT(!elem_find(&thread_ready_list, &cur->general_tag));
+      ASSERT(!list_find(&thread_ready_list, &cur->general_tag));
       list_append(&thread_ready_list, &cur->general_tag);
       cur->ticks = cur->priority;     // 重新将当前线程的ticks再重置为其priority;
       cur->status = TASK_READY;
@@ -175,8 +175,8 @@ void thread_unblock(struct task_struct* pthread) {
    enum intr_status old_status = intr_disable();
    ASSERT(((pthread->status == TASK_BLOCKED) || (pthread->status == TASK_WAITING) || (pthread->status == TASK_HANGING)));
    if (pthread->status != TASK_READY) {
-      ASSERT(!elem_find(&thread_ready_list, &pthread->general_tag));
-      if (elem_find(&thread_ready_list, &pthread->general_tag)) {
+      ASSERT(!list_find(&thread_ready_list, &pthread->general_tag));
+      if (list_find(&thread_ready_list, &pthread->general_tag)) {
 	 PANIC("thread_unblock: blocked thread in ready_list\n");
       }
       list_push(&thread_ready_list, &pthread->general_tag);    // 放到队列的最前面,使其尽快得到调度
@@ -189,7 +189,7 @@ void thread_unblock(struct task_struct* pthread) {
 void thread_yield(void) {
    struct task_struct* cur = running_thread();   
    enum intr_status old_status = intr_disable();
-   ASSERT(!elem_find(&thread_ready_list, &cur->general_tag));
+   ASSERT(!list_find(&thread_ready_list, &cur->general_tag));
    list_append(&thread_ready_list, &cur->general_tag);
    cur->status = TASK_READY;
    schedule();
