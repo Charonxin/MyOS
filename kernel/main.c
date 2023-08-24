@@ -19,19 +19,21 @@ void u_prog_b(void);
 int main(void) {
    put_str("I am kernel\n");
    init_all();
-   put_str("complete init\n");
-/********  测试代码  ********/
-   struct stat obj_stat;
-   put_str("stat1\n");
-   sys_stat("/", &obj_stat);
-   printk("/`s info\n   i_no:%d\n   size:%d\n   filetype:%s\n", \
-	 obj_stat.st_ino, obj_stat.st_size, \
-	 obj_stat.st_filetype == 2 ? "directory" : "regular");
-   sys_stat("/dir1", &obj_stat);
-   printk("/dir1`s info\n   i_no:%d\n   size:%d\n   filetype:%s\n", \
-	 obj_stat.st_ino, obj_stat.st_size, \
-	 obj_stat.st_filetype == 2 ? "directory" : "regular");
-/********  测试代码  ********/
+   process_execute(u_prog_a, "u_prog_a");
+   process_execute(u_prog_b, "u_prog_b");
+   thread_start("k_thread_a", 31, k_thread_a, "I am thread_a");
+   thread_start("k_thread_b", 31, k_thread_b, "I am thread_b");
+   struct dir* p_dir = sys_opendir("/dir1/subdir1");
+   if (p_dir) {
+      printf("/dir1/subdir1 open done!\n");
+      if (sys_closedir(p_dir) == 0) {
+	 printf("/dir1/subdir1 close done!\n");
+      } else {
+	 printf("/dir1/subdir1 close fail!\n");
+      }
+   } else {
+      printf("/dir1/subdir1 open fail!\n");
+   }
    while(1);
    return 0;
 }
@@ -107,3 +109,4 @@ void u_prog_b(void) {
    free(addr3);
    while(1);
 }
+

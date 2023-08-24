@@ -22,7 +22,7 @@ struct dir_entry {
    enum file_types f_type;	      // 文件类型
 };
 
-extern struct dir root_dir;             // 根目录
+struct dir root_dir;             // 根目录
 void open_root_dir(struct partition* part);
 struct dir* dir_open(struct partition* part, uint32_t inode_no);
 void dir_close(struct dir* dir);

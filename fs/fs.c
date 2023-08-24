@@ -13,7 +13,7 @@
 #include "file.h"
 #include "console.h"
 
-struct partition* cur_part;	 // 默认情况下操作的是哪个分区
+extern struct partition* cur_part;	 // 默认情况下操作的是哪个分区
 
 /* 在分区链表中找到名为part_name的分区,并将其指针赋值给cur_part */
 static bool mount_partition(struct list_elem* pelem, int arg) {

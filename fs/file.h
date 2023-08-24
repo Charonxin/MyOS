@@ -27,7 +27,7 @@ enum bitmap_type {
 
 #define MAX_FILE_OPEN 32    // 系统可打开的最大文件数
 
-extern struct file file_table[MAX_FILE_OPEN];
+struct file file_table[MAX_FILE_OPEN];
 int32_t inode_bitmap_alloc(struct partition* part);
 int32_t block_bitmap_alloc(struct partition* part);
 int32_t file_create(struct dir* parent_dir, char* filename, uint8_t flag);

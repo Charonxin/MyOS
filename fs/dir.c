@@ -11,7 +11,7 @@
 #include "interrupt.h"
 #include "super_block.h"
 
-struct dir root_dir;             // 根目录
+extern struct dir root_dir;             // 根目录
 
 /* 打开根目录 */
 void open_root_dir(struct partition* part) {

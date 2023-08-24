@@ -13,7 +13,7 @@
 #define DEFAULT_SECS 1
 
 /* 文件表 */
-struct file file_table[MAX_FILE_OPEN];
+extern struct file file_table[MAX_FILE_OPEN];
 
 /* 从文件表file_table中获取一个空闲位,成功返回下标,失败返回-1 */
 int32_t get_free_slot_in_global(void) {
