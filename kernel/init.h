@@ -1,1 +1,1 @@
-void init_all(void);
+void init_all (void);
